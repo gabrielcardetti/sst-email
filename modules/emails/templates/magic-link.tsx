@@ -1,21 +1,12 @@
-import {
-  Html,
-  Button,
-  Head,
-  Preview,
-  Body,
-  Container,
-  Text,
-  Hr,
-} from "@react-email/components";
+import { Body, Button, Container, Head, Hr, Html, Preview, Text } from "@react-email/components";
 import type { MagicLinkTemplateData } from "../email.doc";
 
 interface MagicLinkEmailProps {
-  data: MagicLinkTemplateData
-  language?: 'en' | 'es';
+  data: MagicLinkTemplateData;
+  language?: "en" | "es";
 }
 
-export function MagicLinkTemplate({ data, language = 'en' }: MagicLinkEmailProps) {
+export function MagicLinkTemplate({ data, language = "en" }: MagicLinkEmailProps) {
   const { loginToken, expirationMinutes } = data;
   const loginUrl = `https://yourapp.com/login?token=${loginToken}`;
 
@@ -62,7 +53,8 @@ export function MagicLinkTemplate({ data, language = 'en' }: MagicLinkEmailProps
 
 const main = {
   backgroundColor: "#ffffff",
-  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
+  fontFamily:
+    "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
 };
 
 const heading = {

@@ -1,10 +1,5 @@
-import { OpenAPIHono } from "@hono/zod-openapi";
-import {
-  getEmailRoute,
-  sendEmailRoute,
-  type EmailResponseSchema,
-} from './email.doc';
-
+import type { OpenAPIHono } from "@hono/zod-openapi";
+import { type EmailResponseSchema, getEmailRoute, sendEmailRoute } from "./email.doc";
 
 import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
 
@@ -14,16 +9,16 @@ import { getTemplate } from "./templates";
 
 export const emailRoutes = (app: OpenAPIHono) => {
   app.openapi(getEmailRoute, (c) => {
-    const { name } = c.req.valid('query');
+    const { name } = c.req.valid("query");
     return c.json({
-      message: `Hello! ${name}`
+      message: `Hello! ${name}`,
     });
   });
 
   app.openapi(sendEmailRoute, async (c) => {
     try {
-      const body = c.req.valid('json');
-      const emailTemplate = await getTemplate(body)
+      const body = c.req.valid("json");
+      const emailTemplate = await getTemplate(body);
 
       console.log("Sending email...");
       console.log("client", Resource.cafecafe.sender);
@@ -46,28 +41,31 @@ export const emailRoutes = (app: OpenAPIHono) => {
                 Text: {
                   Charset: "UTF-8",
                   Data: emailTemplate.text,
-                }
+                },
               },
             },
           },
         })
       );
 
-      const emailData = c.req.valid('json');
+      const emailData = c.req.valid("json");
 
-      console.log('Sending email to:', emailData.to);
+      console.log("Sending email to:", emailData.to);
 
       return c.json({
         success: true,
         messageId: emailResponse.MessageId,
-        message: 'Email sent successfully'
+        message: "Email sent successfully",
       });
     } catch (error) {
       // Error handling
-      return c.json({
-        success: false,
-        message: error instanceof Error ? error.message : 'Failed to send email'
-      }, 500);
+      return c.json(
+        {
+          success: false,
+          message: error instanceof Error ? error.message : "Failed to send email",
+        },
+        500
+      );
     }
   });
 

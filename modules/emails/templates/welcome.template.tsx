@@ -1,21 +1,12 @@
-import {
-  Html,
-  Button,
-  Head,
-  Preview,
-  Body,
-  Container,
-  Text,
-  Link,
-} from "@react-email/components";
+import { Body, Button, Container, Head, Html, Link, Preview, Text } from "@react-email/components";
 import type { WelcomeTemplateData } from "../email.doc";
 
 interface WelcomeEmailProps {
-  data: WelcomeTemplateData
-  language?: 'en' | 'es';
+  data: WelcomeTemplateData;
+  language?: "en" | "es";
 }
 
-export function WelcomeTemplate({ data, language = 'en' }: WelcomeEmailProps) {
+export function WelcomeTemplate({ data, language = "en" }: WelcomeEmailProps) {
   const { userName, websiteUrl } = data;
   const translations = {
     en: {
@@ -53,7 +44,8 @@ export function WelcomeTemplate({ data, language = 'en' }: WelcomeEmailProps) {
 
 const main = {
   backgroundColor: "#ffffff",
-  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
+  fontFamily:
+    "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
 };
 
 const heading = {

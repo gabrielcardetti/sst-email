@@ -1,21 +1,12 @@
-import {
-  Html,
-  Button,
-  Head,
-  Preview,
-  Body,
-  Container,
-  Text,
-  Hr,
-} from "@react-email/components";
+import { Body, Button, Container, Head, Hr, Html, Preview, Text } from "@react-email/components";
 import type { ForgotPasswordTemplateData } from "../email.doc";
 
 interface ForgotPasswordEmailProps {
-  data: ForgotPasswordTemplateData
-  language?: 'en' | 'es';
+  data: ForgotPasswordTemplateData;
+  language?: "en" | "es";
 }
 
-export function ForgotPasswordTemplate({ data, language = 'en' }: ForgotPasswordEmailProps) {
+export function ForgotPasswordTemplate({ data, language = "en" }: ForgotPasswordEmailProps) {
   const { resetToken, expirationMinutes } = data;
   const resetUrl = `https://yourapp.com/reset-password?token=${resetToken}`;
 
@@ -62,7 +53,8 @@ export function ForgotPasswordTemplate({ data, language = 'en' }: ForgotPassword
 
 const main = {
   backgroundColor: "#ffffff",
-  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
+  fontFamily:
+    "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
 };
 
 const heading = {
