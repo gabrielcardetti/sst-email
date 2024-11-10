@@ -4,13 +4,13 @@ import {
   sendEmailRoute,
   type EmailResponseSchema,
 } from './email.doc';
-import { WelcomeEmail } from "./templates";
 
 
 import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
 
 const client = new SESv2Client();
 import { Resource } from "sst";
+import { getTemplate } from "./templates";
 
 export const emailRoutes = (app: OpenAPIHono) => {
   app.openapi(getEmailRoute, (c) => {
@@ -22,7 +22,8 @@ export const emailRoutes = (app: OpenAPIHono) => {
 
   app.openapi(sendEmailRoute, async (c) => {
     try {
-      const emailTemplate = await WelcomeEmail({ url: "https://blog.cafecafe.com.ar" });
+      const body = c.req.valid('json');
+      const emailTemplate = await getTemplate(body)
 
       console.log("Sending email...");
       console.log("client", Resource.cafecafe.sender);
@@ -51,8 +52,6 @@ export const emailRoutes = (app: OpenAPIHono) => {
           },
         })
       );
-
-
 
       const emailData = c.req.valid('json');
 

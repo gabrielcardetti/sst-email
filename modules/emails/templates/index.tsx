@@ -1,15 +1,45 @@
 import { render } from "@react-email/render";
+import type { EmailRequest } from "../email.doc";
+import { ForgotPasswordTemplate } from "./forgot-password.template";
 import { WelcomeTemplate } from "./welcome.template";
+import { MagicLinkTemplate } from "./magic-link";
 
+const TEMPLATE_COMPONENTS = {
+  'welcome': WelcomeTemplate,
+  'forgot-password': ForgotPasswordTemplate,
+  'magic-link': MagicLinkTemplate,
+} as const;
 
-export const WelcomeEmail = async (props: {
-    url: string;
-}) => {
-    const html = await render(<WelcomeTemplate url={props.url} />);
-    const text = await render(<WelcomeTemplate url={props.url} />, { plainText: true });
+type RenderOptions = {
+  plainText?: boolean;
+};
 
-    return {
-        html,
-        text
-    }
+const renderTemplate = async (
+  TemplateComponent: React.ComponentType<any>,
+  data: unknown,
+  language: string,
+  options?: RenderOptions
+) => {
+  return render(
+    <TemplateComponent
+      data={data}
+      language={language}
+    />,
+    options
+  );
+};
+
+export const getTemplate = async (emailRequest: EmailRequest) => {
+  const TemplateComponent = TEMPLATE_COMPONENTS[emailRequest.templateName];
+
+  if (!TemplateComponent) {
+    throw new Error(`Template not found: ${emailRequest.templateName}`);
+  }
+
+  const [html, text] = await Promise.all([
+    renderTemplate(TemplateComponent, emailRequest.data, emailRequest.language),
+    renderTemplate(TemplateComponent, emailRequest.data, emailRequest.language, { plainText: true }),
+  ]);
+
+  return { html, text };
 };

@@ -2,19 +2,17 @@ import { handle } from "hono/aws-lambda";
 import { swaggerUI } from "@hono/swagger-ui";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { cors } from "hono/cors";
-import { etag } from "hono/etag";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
 import { emailRoutes } from "./modules/emails/email.routes";
 
 const app = new OpenAPIHono();
 
-app.use(etag(), logger());
+app.use(logger());
 app.use(prettyJSON());
 app.use(cors());
 
 app.notFound((c) => c.json({ message: "Not Found", ok: false }, 404));
-
 
 
 // Custom middleware, refer https://hono.dev/concepts/middleware

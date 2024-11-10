@@ -1,9 +1,47 @@
 import { createRoute } from "@hono/zod-openapi";
 import { z } from "zod";
 
-export const EmailRequestSchema = z.object({
-  to: z.string().email('Invalid email format')
+export const EmailTemplateType = z.enum([
+  "welcome",
+  "forgot-password",
+  "magic-link"
+]);
+
+const TemplateData = {
+  welcome: z.object({
+    userName: z.string(),
+    websiteUrl: z.string().url(),
+  }),
+  'forgot-password': z.object({
+    resetToken: z.string(),
+    expirationMinutes: z.number(),
+  }),
+  'magic-link': z.object({
+    loginToken: z.string(),
+    expirationMinutes: z.number(),
+  }),
+} as const;
+
+// Export types for each template data
+export type WelcomeTemplateData = z.infer<typeof TemplateData.welcome>;
+export type ForgotPasswordTemplateData = z.infer<typeof TemplateData['forgot-password']>;
+export type MagicLinkTemplateData = z.infer<typeof TemplateData['magic-link']>;
+
+const BaseEmailSchema = z.object({
+  to: z.string().email('Invalid email format'),
+  templateName: z.enum(['welcome', 'forgot-password', 'magic-link']),
+  language: z.enum(['en', 'es']).default('en'),
 });
+
+export const EmailRequestSchema = BaseEmailSchema.and(
+  z.discriminatedUnion('templateName', [
+    z.object({ templateName: z.literal('welcome'), data: TemplateData.welcome }),
+    z.object({ templateName: z.literal('forgot-password'), data: TemplateData['forgot-password'] }),
+    z.object({ templateName: z.literal('magic-link'), data: TemplateData['magic-link'] }),
+  ])
+);
+
+export type EmailRequest = z.infer<typeof EmailRequestSchema>;
 
 // Schema for the email response
 export const EmailResponseSchema = z.object({
