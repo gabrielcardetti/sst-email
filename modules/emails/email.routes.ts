@@ -5,6 +5,8 @@ import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
 const client = new SESv2Client();
 import { Resource } from "sst";
 import { getTemplate } from "./templates";
+import db from "../db/db";
+import { emailTable } from "../db/schema";
 
 export const emailRoutes = (app: OpenAPIHono) => {
   return app
@@ -51,10 +53,19 @@ export const emailRoutes = (app: OpenAPIHono) => {
 
         console.log("Sending email to:", emailData.to);
 
+        const insertResult = await db.insert(emailTable).values({
+          email: emailData.to,
+          messageId: emailResponse.MessageId!,
+          data: JSON.stringify(emailData),
+        }).returning({ insertedId: emailTable.id });
+
+        const emailId = insertResult[0].insertedId;
+
         return c.json({
           success: true,
           messageId: emailResponse.MessageId,
           message: "Email sent successfully",
+          emailId,
         });
       } catch (error) {
         // Error handling

@@ -44,6 +44,7 @@ export const EmailResponseSchema = z.object({
   success: z.boolean(),
   messageId: z.string().optional(),
   message: z.string(),
+  emailId: z.number().optional(),
 });
 
 const tags = ["Email"];

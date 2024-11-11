@@ -1,5 +1,3 @@
-
-// Usage: bun run src/client.ts
 import { hc } from "hono/client";
 import type { EmailRoutes } from "./modules/emails/email.routes";
 
@@ -27,7 +25,7 @@ async function main() {
 
   console.log(await sendWelcomeEmailResponse.json());
 
-  const sendForgotPasswordEmailResponse = await client.email.send.$post({
+/*   const sendForgotPasswordEmailResponse = await client.email.send.$post({
     json: {
       to: "gabicardetti@gmail.com",
       templateName: "forgot-password",
@@ -53,7 +51,7 @@ async function main() {
     }
   });
 
-  console.log(await sendMagicLinkEmailResponse.json());
+  console.log(await sendMagicLinkEmailResponse.json()); */
 
 
 

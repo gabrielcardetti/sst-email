@@ -23,7 +23,10 @@ export default $config({
       url: true,
       handler: "index.handler",
       link: [email],
-      environment: {},
+      environment: {
+        DATABASE_URL: process.env.DATABASE_URL!,
+        DATABASE_AUTH_TOKEN: process.env.DATABASE_AUTH_TOKEN!
+      },
       permissions: [
         {
           actions: ["ses:SendEmail", "ses:SendRawEmail"],
