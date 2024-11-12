@@ -15,6 +15,7 @@ type RenderOptions = {
 };
 
 const renderTemplate = async (
+  // biome-ignore lint/suspicious/noExplicitAny: Too complex to type for now
   TemplateComponent: React.ComponentType<any>,
   data: unknown,
   language: string,

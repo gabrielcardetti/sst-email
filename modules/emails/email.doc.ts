@@ -115,3 +115,58 @@ export const sendEmailRoute = createRoute({
   tags,
   description: "Send an email to the specified destination",
 });
+
+
+export const EmailEventSchema = z.object({
+  type: z.string(),
+  timestamp: z.string(),
+  data: z.any(),
+});
+
+export const EmailEventsResponseSchema = z.object({
+  messageId: z.string(),
+  events: z.array(EmailEventSchema),
+});
+
+
+export const getEmailEventsRoute = createRoute({
+  method: "get",
+  path: "/email/{messageId}/events",
+  request: {
+    params: z.object({
+      messageId: z.string().describe("The message ID to fetch events for"),
+    }),
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: EmailEventsResponseSchema,
+        },
+      },
+      description: "Successfully retrieved email events",
+    },
+    404: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            error: z.string(),
+          }),
+        },
+      },
+      description: "Message ID not found",
+    },
+    500: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            error: z.string(),
+          }),
+        },
+      },
+      description: "Server error while fetching events",
+    },
+  },
+  tags,
+  description: "Get all events for a specific email message ID",
+});

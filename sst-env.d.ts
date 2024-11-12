@@ -11,6 +11,18 @@ declare module "sst" {
       "sender": string
       "type": "sst.aws.Email"
     }
+    "email-tracking-handler": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
+    "email-tracking-queue": {
+      "type": "sst.aws.Queue"
+      "url": string
+    }
+    "email-tracking-topic": {
+      "arn": string
+      "type": "sst.aws.SnsTopic"
+    }
     "sst-email": {
       "name": string
       "type": "sst.aws.Function"

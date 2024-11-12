@@ -1,12 +1,13 @@
 import type { OpenAPIHono } from "@hono/zod-openapi";
-import { getEmailRoute, sendEmailRoute } from "./email.doc";
+import { getEmailEventsRoute, getEmailRoute, sendEmailRoute } from "./email.doc";
 import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
 
 const client = new SESv2Client();
 import { Resource } from "sst";
 import { getTemplate } from "./templates";
 import db from "../db/db";
-import { emailTable } from "../db/schema";
+import { emailTable, eventTable } from "../db/schema";
+import { eq } from "drizzle-orm";
 
 export const emailRoutes = (app: OpenAPIHono) => {
   return app
@@ -53,9 +54,19 @@ export const emailRoutes = (app: OpenAPIHono) => {
 
         console.log("Sending email to:", emailData.to);
 
+        if (!emailResponse.MessageId) {
+          return c.json(
+            {
+              success: false,
+              message: "Failed to send email",
+            },
+            500
+          );
+        }
+
         const insertResult = await db.insert(emailTable).values({
           email: emailData.to,
-          messageId: emailResponse.MessageId!,
+          messageId: emailResponse.MessageId,
           data: JSON.stringify(emailData),
         }).returning({ insertedId: emailTable.id });
 
@@ -74,6 +85,43 @@ export const emailRoutes = (app: OpenAPIHono) => {
             success: false,
             message: error instanceof Error ? error.message : "Failed to send email",
           },
+          500
+        );
+      }
+    })
+    .openapi(getEmailEventsRoute, async (c) => {
+      const messageId = c.req.param('messageId');
+
+      try {
+        const events = await db
+          .select()
+          .from(eventTable)
+          .where(eq(eventTable.messageId, messageId))
+          .orderBy(eventTable.timestamp)
+          .all();
+
+        if (events.length === 0) {
+          return c.json(
+            { error: `No events found for message ID: ${messageId}` },
+            404
+          );
+        }
+
+        const formattedEvents = events.map(event => ({
+          type: event.type,
+          timestamp: event.timestamp,
+          data: JSON.parse(event.data ?? "{}")
+        }));
+
+        return c.json({
+          messageId,
+          events: formattedEvents
+        }, 200);
+
+      } catch (error) {
+        console.error('Error fetching events:', error);
+        return c.json(
+          { error: 'Internal server error' },
           500
         );
       }
