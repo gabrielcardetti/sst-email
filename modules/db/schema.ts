@@ -19,8 +19,15 @@ export const eventTable = sqliteTable("events", {
   messageId: text("message_id").notNull(),
   type: text("type").notNull(),
   timestamp: text("timestamp").notNull(),
-  data: text("data"),
-  createdAt: int("created_at", { mode: "timestamp" }).$defaultFn(
+  data: text("data")
+});
+
+export const bouncedEmailTable = sqliteTable("bounced_emails", {
+  ...commonColumns,
+  email: text().notNull().unique(),
+  reason: text().notNull(),
+  bounceType: text().notNull(),
+  lastBounceAt: int("last_bounce_at", { mode: "timestamp" }).$defaultFn(
     () => new Date(),
   ),
 });

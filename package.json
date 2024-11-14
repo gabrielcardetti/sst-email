@@ -25,11 +25,10 @@
     "sst": "^3.3.13"
   },
   "scripts": {
-    "lint": "biome lint --write",
+    "lint": "biome lint --write && biome format --write",
     "dev": "sst dev",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "format": "biome format --write"
+    "db:migrate": "drizzle-kit migrate"
   }
 }

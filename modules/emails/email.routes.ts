@@ -20,12 +20,22 @@ export const emailRoutes = (app: OpenAPIHono) => {
       try {
         const emailData = c.req.valid("json");
         const result = await emailService.sendEmail(emailData);
+
+        if (!result.success) {
+          return c.json({
+            success: false,
+            message: result.message ?? result.code ?? "Failed to send email",
+          }, 400);
+        }
+
+
         return c.json({
           ...result,
           message: "Email sent successfully",
         });
       } catch (error) {
         console.error("Error sending email:", error);
+
         return c.json(
           {
             success: false,

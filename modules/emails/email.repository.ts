@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import db from "../db/db";
-import { emailTable, eventTable } from "../db/schema";
+import { bouncedEmailTable, emailTable, eventTable } from "../db/schema";
 import type { EmailRequest } from "./email.doc";
 import type { EmailEvent } from "./email.types";
 
@@ -31,5 +31,27 @@ export class EmailRepository {
       timestamp: event.timestamp,
       data: JSON.parse(event.data ?? "{}"),
     }));
+  }
+
+  async addBouncedEmail(email: string, reason: string, bounceType: string) {
+    await db
+      .insert(bouncedEmailTable)
+      .values({
+        email,
+        reason,
+        bounceType,
+      })
+      .onConflictDoUpdate({ target: [bouncedEmailTable.email], set: { reason, bounceType, lastBounceAt: new Date() } })
+
+  }
+
+  async isEmailBounced(email: string): Promise<boolean> {
+    const result = await db
+      .select()
+      .from(bouncedEmailTable)
+      .where(eq(bouncedEmailTable.email, email))
+      .get();
+
+    return !!result;
   }
 }

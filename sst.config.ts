@@ -64,6 +64,7 @@ export default $config({
           resources: [trackingQueue.arn],
         },
       ],
+      timeout: "2 minutes"
     });
 
     trackingQueue.subscribe(trackingHandler.arn);
@@ -83,6 +84,7 @@ export default $config({
           resources: ["*"],
         },
       ],
+      timeout: "2 minutes"
     });
 
     return {

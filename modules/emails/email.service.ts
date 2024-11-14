@@ -15,6 +15,15 @@ export class EmailService {
   }
 
   async sendEmail(emailData: EmailRequest) {
+    const isBounced = await this.emailRepository.isEmailBounced(emailData.to);
+    if (isBounced) {
+      return {
+        success: false,
+        message: "This email address has previously bounced and cannot receive emails",
+        code: "EMAIL_BOUNCED",
+      }
+    }
+
     const emailTemplate = await getTemplate(emailData);
 
     console.log("Sending email", emailData);
@@ -77,5 +86,17 @@ export class EmailService {
       messageId,
       events,
     };
+  }
+
+  async handleBounce(messageId: string, bounceData: any) { // TODO: add bounceData type
+    const bouncedRecipients = bounceData.bounce?.bouncedRecipients || [];
+
+    for (const recipient of bouncedRecipients) {
+      await this.emailRepository.addBouncedEmail(
+        recipient.emailAddress,
+        recipient.diagnosticCode || "Unknown reason",
+        bounceData.bounce.bounceType,
+      );
+    }
   }
 }
