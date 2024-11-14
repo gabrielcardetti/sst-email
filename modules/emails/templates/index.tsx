@@ -19,7 +19,7 @@ const renderTemplate = async (
   TemplateComponent: React.ComponentType<any>,
   data: unknown,
   language: string,
-  options?: RenderOptions
+  options?: RenderOptions,
 ) => {
   return render(<TemplateComponent data={data} language={language} />, options);
 };
@@ -33,9 +33,14 @@ export const getTemplate = async (emailRequest: EmailRequest) => {
 
   const [html, text] = await Promise.all([
     renderTemplate(TemplateComponent, emailRequest.data, emailRequest.language),
-    renderTemplate(TemplateComponent, emailRequest.data, emailRequest.language, {
-      plainText: true,
-    }),
+    renderTemplate(
+      TemplateComponent,
+      emailRequest.data,
+      emailRequest.language,
+      {
+        plainText: true,
+      },
+    ),
   ]);
 
   return { html, text };

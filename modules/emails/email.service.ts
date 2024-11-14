@@ -54,7 +54,7 @@ export class EmailService {
     const emailId = await this.emailRepository.createEmail(
       emailData.to,
       response.MessageId,
-      emailData
+      emailData,
     );
 
     console.log("Email saved", emailId);

@@ -26,10 +26,10 @@ export class EmailRepository {
       .orderBy(eventTable.timestamp)
       .all();
 
-    return events.map(event => ({
+    return events.map((event) => ({
       type: event.type,
       timestamp: event.timestamp,
-      data: JSON.parse(event.data ?? "{}")
+      data: JSON.parse(event.data ?? "{}"),
     }));
   }
 }

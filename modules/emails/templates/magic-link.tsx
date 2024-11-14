@@ -1,4 +1,13 @@
-import { Body, Button, Container, Head, Hr, Html, Preview, Text } from "@react-email/components";
+import {
+  Body,
+  Button,
+  Container,
+  Head,
+  Hr,
+  Html,
+  Preview,
+  Text,
+} from "@react-email/components";
 import type { MagicLinkTemplateData } from "../email.doc";
 
 interface MagicLinkEmailProps {
@@ -6,7 +15,10 @@ interface MagicLinkEmailProps {
   language?: "en" | "es";
 }
 
-export function MagicLinkTemplate({ data, language = "en" }: MagicLinkEmailProps) {
+export function MagicLinkTemplate({
+  data,
+  language = "en",
+}: MagicLinkEmailProps) {
   const { loginToken, expirationMinutes } = data;
   const loginUrl = `https://yourapp.com/login?token=${loginToken}`;
 
@@ -25,7 +37,8 @@ export function MagicLinkTemplate({ data, language = "en" }: MagicLinkEmailProps
       text: "Haz clic en el botón para iniciar sesión en tu cuenta. ¡No necesitas contraseña!",
       expiration: `Este enlace expirará en ${expirationMinutes} minutos.`,
       cta: "Iniciar Sesión",
-      security: "Por razones de seguridad, este enlace solo puede usarse una vez.",
+      security:
+        "Por razones de seguridad, este enlace solo puede usarse una vez.",
     },
   };
 

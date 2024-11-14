@@ -1,4 +1,13 @@
-import { Body, Button, Container, Head, Hr, Html, Preview, Text } from "@react-email/components";
+import {
+  Body,
+  Button,
+  Container,
+  Head,
+  Hr,
+  Html,
+  Preview,
+  Text,
+} from "@react-email/components";
 import type { ForgotPasswordTemplateData } from "../email.doc";
 
 interface ForgotPasswordEmailProps {
@@ -6,7 +15,10 @@ interface ForgotPasswordEmailProps {
   language?: "en" | "es";
 }
 
-export function ForgotPasswordTemplate({ data, language = "en" }: ForgotPasswordEmailProps) {
+export function ForgotPasswordTemplate({
+  data,
+  language = "en",
+}: ForgotPasswordEmailProps) {
   const { resetToken, expirationMinutes } = data;
   const resetUrl = `https://yourapp.com/reset-password?token=${resetToken}`;
 

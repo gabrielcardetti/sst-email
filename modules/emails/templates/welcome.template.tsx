@@ -1,4 +1,13 @@
-import { Body, Button, Container, Head, Html, Link, Preview, Text } from "@react-email/components";
+import {
+  Body,
+  Button,
+  Container,
+  Head,
+  Html,
+  Link,
+  Preview,
+  Text,
+} from "@react-email/components";
 import type { WelcomeTemplateData } from "../email.doc";
 
 interface WelcomeEmailProps {

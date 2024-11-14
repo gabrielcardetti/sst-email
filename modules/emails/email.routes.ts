@@ -1,5 +1,9 @@
 import type { OpenAPIHono } from "@hono/zod-openapi";
-import { getEmailEventsRoute, getEmailRoute, sendEmailRoute } from "./email.doc";
+import {
+  getEmailEventsRoute,
+  getEmailRoute,
+  sendEmailRoute,
+} from "./email.doc";
 import { EmailService } from "./email.service";
 
 export const emailRoutes = (app: OpenAPIHono) => {
@@ -25,9 +29,10 @@ export const emailRoutes = (app: OpenAPIHono) => {
         return c.json(
           {
             success: false,
-            message: error instanceof Error ? error.message : "Failed to send email",
+            message:
+              error instanceof Error ? error.message : "Failed to send email",
           },
-          500
+          500,
         );
       }
     })
@@ -40,8 +45,13 @@ export const emailRoutes = (app: OpenAPIHono) => {
       } catch (error) {
         console.error("Error fetching events:", error);
         return c.json(
-          { error: error instanceof Error ? error.message : "Internal server error" },
-          error instanceof Error && error.message.includes("No events found") ? 404 : 500
+          {
+            error:
+              error instanceof Error ? error.message : "Internal server error",
+          },
+          error instanceof Error && error.message.includes("No events found")
+            ? 404
+            : 500,
         );
       }
     });

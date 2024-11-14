@@ -28,22 +28,28 @@ export const handler = async (event: SQSEvent) => {
 
       try {
         // Store event in the events table
-        await db.insert(eventTable).values({
-          messageId,
-          type: message.eventType,
-          timestamp: message.mail?.timestamp || new Date().toISOString(),
-          data: JSON.stringify(message)
-        }).run();
+        await db
+          .insert(eventTable)
+          .values({
+            messageId,
+            type: message.eventType,
+            timestamp: message.mail?.timestamp || new Date().toISOString(),
+            data: JSON.stringify(message),
+          })
+          .run();
 
         // Update the email record with the new event data
         const currentData = JSON.parse(emailRecord.data || "{}");
         const updatedData = {
           ...currentData,
-          events: [...(currentData.events || []), {
-            type: message.eventType,
-            timestamp: message.mail?.timestamp || new Date().toISOString(),
-            data: message
-          }]
+          events: [
+            ...(currentData.events || []),
+            {
+              type: message.eventType,
+              timestamp: message.mail?.timestamp || new Date().toISOString(),
+              data: message,
+            },
+          ],
         };
 
         await db
@@ -52,16 +58,21 @@ export const handler = async (event: SQSEvent) => {
           .where(eq(emailTable.messageId, messageId))
           .run();
 
-        console.log(`Successfully processed ${message.eventType} event for messageId: ${messageId}`);
+        console.log(
+          `Successfully processed ${message.eventType} event for messageId: ${messageId}`,
+        );
       } catch (error) {
-        console.error(`Error updating record for messageId: ${messageId}`, error);
+        console.error(
+          `Error updating record for messageId: ${messageId}`,
+          error,
+        );
         throw error;
       }
     }
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: "Events processed successfully" })
+      body: JSON.stringify({ message: "Events processed successfully" }),
     };
   } catch (error) {
     console.error("Error processing SQS events:", error);
