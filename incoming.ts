@@ -4,6 +4,7 @@ import type { S3Event } from "aws-lambda";
 import {
   S3Client,
   GetObjectCommand,
+  PutObjectCommand,
 } from "@aws-sdk/client-s3";
 import { EmailRepository } from "./modules/emails/email.repository";
 
@@ -16,6 +17,10 @@ export async function handler(event: S3Event) {
   for (const record of event.Records) {
     const bucket = record.s3.bucket.name;
     const key = decodeURIComponent(record.s3.object.key.replace(/\+/g, ' '));
+
+    if (key.includes("attachments")) {
+      continue;
+    }
 
     try {
       const getCommand = new GetObjectCommand({
@@ -34,10 +39,28 @@ export async function handler(event: S3Event) {
       const email = await simpleParser(bodyContents);
 
       
+      
       const emailId = await emailRepository.createIncomingEmail(email, key, bucket);
 
-      // Save attachments if any
       if (email.attachments.length > 0) {
+        // Upload attachments to S3 and get their keys
+        const uploadPromises = email.attachments.map(async (attachment) => {
+          const attachmentKey = `${key}/attachments/${attachment.filename}`;
+
+          await s3.send(new PutObjectCommand({
+            Bucket: bucket,
+            Key: attachmentKey,
+            Body: attachment.content,
+            ContentType: attachment.contentType,
+          }));
+
+          return attachmentKey;
+        });
+
+        // Wait for all uploads to complete
+        await Promise.all(uploadPromises);
+        
+        // Save attachment metadata to database
         await emailRepository.createIncomingAttachments(emailId, email.attachments, key);
       }
 
