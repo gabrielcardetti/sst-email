@@ -185,3 +185,168 @@ export const getEmailEventsRoute = createRoute({
   tags,
   description: "Get all events for a specific email message ID",
 });
+
+// Add these schemas after the existing ones
+export const IncomingEmailResponse = z.object({
+  id: z.number(),
+  from: z.string(),
+  fromName: z.string().nullable(),
+  to: z.array(z.string()),
+  subject: z.string().nullable(),
+  text: z.string().nullable(),
+  html: z.string().nullable(),
+  s3Key: z.string(),
+  s3Bucket: z.string(),
+  attachmentCount: z.number(),
+  createdAt: z.string(),
+  metadata: z.record(z.any()).nullable(),
+});
+
+export type IncomingEmailResponse = z.infer<typeof IncomingEmailResponse>;
+
+export const IncomingAttachmentSchema = z.object({
+  id: z.number(),
+  filename: z.string().nullable(),
+  contentType: z.string().nullable(),
+  size: z.number(),
+  s3Key: z.string(),
+  createdAt: z.string(),
+});
+
+export const IncomingEmailDetailResponse = IncomingEmailResponse.extend({
+  attachments: z.array(IncomingAttachmentSchema),
+});
+
+export type IncomingEmailDetailResponse = z.infer<typeof IncomingEmailDetailResponse>;
+
+export const getIncomingEmailsRoute = createRoute({
+  method: "get",
+  path: "/email/incoming",
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            emails: z.array(IncomingEmailResponse)
+          }),
+        },
+      },
+      description: "Successfully retrieved incoming emails",
+    },
+    500: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            error: z.string(),
+          }),
+        },
+      },
+      description: "Server error while fetching incoming emails",
+    },
+  },
+  tags,
+  description: "Get all incoming emails",
+});
+
+export const getIncomingEmailRoute = createRoute({
+  method: "get",
+  path: "/email/incoming/{id}",
+  request: {
+    params: z.object({
+      id: z.string().transform((val) => parseInt(val, 10)),
+    }),
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: IncomingEmailDetailResponse,
+        },
+      },
+      description: "Successfully retrieved incoming email details",
+    },
+    404: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            error: z.string(),
+          }),
+        },
+      },
+      description: "Incoming email not found",
+    },
+    500: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            error: z.string(),
+          }),
+        },
+      },
+      description: "Server error while fetching incoming email details",
+    },
+  },
+  tags,
+  description: "Get detailed information about a specific incoming email",
+});
+
+export const downloadAttachmentRoute = createRoute({
+  method: "get",
+  path: "/email/attachment/{attachmentId}/download",
+  request: {
+    params: z.object({
+      attachmentId: z.string().transform((val) => parseInt(val, 10)),
+    }),
+  },
+  responses: {
+    200: {
+      content: {
+        "*/*": {
+          schema: z.any().openapi({
+            type: "string",
+            format: "binary"
+          })
+        },
+      },
+      headers: z.object({
+        "Content-Disposition": z.string().openapi({
+          example: 'attachment; filename="example.pdf"',
+          description: "Indicates file should be downloaded and specifies filename"
+        }),
+        "Content-Type": z.string().openapi({
+          example: "application/pdf",
+          description: "MIME type of the attachment"
+        }),
+      }),
+      description: "Successfully downloaded the attachment",
+    },
+    404: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            error: z.string().openapi({
+              example: "Attachment not found",
+              description: "Error message describing why the attachment couldn't be found"
+            }),
+          }),
+        },
+      },
+      description: "Attachment not found",
+    },
+    500: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            error: z.string().openapi({
+              example: "Internal server error",
+              description: "Error message describing the server error"
+            }),
+          }),
+        },
+      },
+      description: "Server error while downloading attachment",
+    },
+  },
+  tags,
+  description: "Download an email attachment",
+});

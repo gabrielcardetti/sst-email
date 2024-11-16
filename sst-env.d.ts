@@ -23,6 +23,14 @@ declare module "sst" {
       "arn": string
       "type": "sst.aws.SnsTopic"
     }
+    "incoming-email-handler": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
+    "incoming-emails-v2": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
     "sst-email": {
       "name": string
       "type": "sst.aws.Function"

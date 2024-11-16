@@ -45,7 +45,7 @@ export default $config({
           ],
           topic: trackingTopic.arn,
         },
-      ],
+      ]
     });
 
     const trackingHandler = new sst.aws.Function("email-tracking-handler", {
@@ -70,10 +70,13 @@ export default $config({
     trackingQueue.subscribe(trackingHandler.arn);
     trackingTopic.subscribeQueue("email-tracking-queue-topic", trackingQueue);
 
+    const emailBucket = new sst.aws.Bucket("incoming-emails-v2");
+
+
     const api = new sst.aws.Function("sst-email", {
       url: true,
       handler: "index.handler",
-      link: [email],
+      link: [email, emailBucket],
       environment: {
         DATABASE_URL: process.env.DATABASE_URL,
         DATABASE_AUTH_TOKEN: process.env.DATABASE_AUTH_TOKEN,
@@ -83,12 +86,81 @@ export default $config({
           actions: ["ses:SendEmail", "ses:SendRawEmail"],
           resources: ["*"],
         },
+        {
+          actions: ["s3:GetObject"],
+          resources: [emailBucket.arn],
+        }
       ],
       timeout: "2 minutes"
     });
 
+    // // Create SES rule set using AWS provider
+    const ruleSet = new aws.ses.ReceiptRuleSet("emailRuleSet", {
+      ruleSetName: `sst-email-rules`,
+    });
+
+    // Activate this specific rule set - only ONE rule set can be active at a time
+    const activeRuleSet = new aws.ses.ActiveReceiptRuleSet("activeEmailRuleSet", {
+      ruleSetName: ruleSet.ruleSetName,
+    });
+
+
+    // const emailBucketPolicy = new aws.s3.BucketPolicy("incoming-emails-ses-policy", {
+    //   bucket: emailBucket.name,
+    //   policy: JSON.stringify({
+    //     Version: "2012-10-17",
+    //     Statement: [
+    //       {
+    //         Effect: "Allow",
+    //         Principal: {
+    //           Service: "ses.amazonaws.com",
+    //         },
+    //         Action: "s3:PutObject",
+    //         Resource: `${emailBucket.arn}/*`,
+    //       },
+    //     ],
+    //   }),
+    // });
+
+    const incomingEmailHandler = new sst.aws.Function("incoming-email-handler", {
+      handler: "incoming.handler",
+      environment: {
+        DATABASE_URL: process.env.DATABASE_URL,
+        DATABASE_AUTH_TOKEN: process.env.DATABASE_AUTH_TOKEN,
+      },
+      permissions: [
+        {
+          actions: ["s3:GetObject"],
+          resources: [emailBucket.arn],
+        },
+      ],
+      link: [emailBucket],
+      timeout: "2 minutes"
+    });
+
+
+
+    const rule = new aws.ses.ReceiptRule("emailRule", {
+      ruleSetName: ruleSet.ruleSetName,
+      enabled: true,
+      scanEnabled: true,
+      recipients: ["incoming@cafecafe.com.ar"],
+      s3Actions: [{
+        bucketName: emailBucket.name,
+        objectKeyPrefix: "incoming/",
+        position: 1,
+      }],
+    });
+
+    // TODO: if domain is registered on Route53, add MX record to the domain
+
+    // TODO: add sqs in the middle of the hablde
+    emailBucket.subscribe(incomingEmailHandler.arn);
+
     return {
       api: api.url,
+      s3Bucket: emailBucket.domain,
+      s3name: emailBucket.name,
     };
   },
 });
