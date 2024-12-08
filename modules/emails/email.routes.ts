@@ -6,6 +6,7 @@ import {
   getIncomingEmailsRoute,
   getIncomingEmailRoute,
   downloadAttachmentRoute,
+  verifyEmailRoute,
 } from "./email.doc";
 import { EmailService } from "./email.service";
 
@@ -98,10 +99,10 @@ export const emailRoutes = (app: OpenAPIHono) => {
     })
     .openapi(downloadAttachmentRoute, async (c) => {
       const attachmentId = c.req.valid("param").attachmentId;
-    
+
       try {
         const { data, filename, contentType } = await emailService.downloadAttachment(attachmentId);
-    
+
         return new Response(data, {
           headers: {
             "Content-Disposition": `attachment; filename="${filename}"`,
@@ -115,11 +116,24 @@ export const emailRoutes = (app: OpenAPIHono) => {
             404
           );
         }
-        
+
         console.error("Error downloading attachment:", error);
         return c.json(
           { error: error instanceof Error ? error.message : "Internal server error" },
           500
+        );
+      }
+    })
+    .openapi(verifyEmailRoute, async (c) => {
+      try {
+        const email = c.req.valid("json").email;
+        const result = await emailService.verifyEmail(email);
+        return c.json(result, 200);
+      } catch (error) {
+        console.error("Error verifying email:", error);
+        return c.json(
+          { error: error instanceof Error ? error.message : "Internal server error" },
+          400
         );
       }
     });

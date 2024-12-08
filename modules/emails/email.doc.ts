@@ -350,3 +350,41 @@ export const downloadAttachmentRoute = createRoute({
   tags,
   description: "Download an email attachment",
 });
+
+export const verifyEmailSchema = z.object({
+  email: z.string().email(),
+});
+
+export const verifyEmailRoute = createRoute({
+  method: "post",
+  path: "/email/verify-email",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: verifyEmailSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: z.any(),
+        },
+      },
+      description: "Email verification initiated successfully",
+    },
+    400: {
+      content: {
+        "application/json": {
+          schema: z.any(),
+        },
+      },
+      description: "Invalid Email format",
+    },
+  },
+  tags: ["Email"],
+  description: "Verify a new Email for sending emails",
+});

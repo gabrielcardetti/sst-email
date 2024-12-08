@@ -5,6 +5,7 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
 import { emailRoutes } from "./modules/emails/email.routes";
+import { EmailService } from "./modules/emails/email.service";
 
 const app = new OpenAPIHono();
 
@@ -32,5 +33,13 @@ app.doc("/doc", {
     title: "sst-email",
   },
 });
+
+
+app.get("/custom-template", (c) => {
+  const emailService = new EmailService();
+  const response = emailService.createCustomVerificationEmailTemplate();
+  return c.json(response)
+}
+);
 
 export const handler = handle(app);

@@ -97,23 +97,59 @@ async function main() {
   // console.log(inspect(events, { depth: Number.POSITIVE_INFINITY }));
 
 
-  const incomingEmails = await client.email.incoming.$get();
-  console.log(await incomingEmails.json());
+// <<  const incomingEmails = await client.email.incoming.$get();
+//   const incomingEmailsResponse = await incomingEmails.json() as { emails?: { text: string | null; to: string[]; id: number; createdAt: string; from: string; fromName: string | null; subject: string | null; html: string | null; s3Key: string; s3Bucket: string; attachmentCount: number; metadata: Record<string, unknown> | null; }[]; error?: string; };
 
-  const incomingEmailDetails = await client.email.incoming[":id"].$get({
-    param: {
-      id: "2",
+//   if ('error' in incomingEmailsResponse) {
+//     console.error('Failed to fetch incoming emails:', incomingEmailsResponse.error);
+//     return;
+//   }
+
+//   if (!incomingEmailsResponse.emails) {
+//     console.error('No emails found in response');
+//     return;
+//   }
+
+
+//   const lastEmail = incomingEmailsResponse.emails[0];
+
+//   // console.log(incomingEmailsResponse.emails);
+
+//   const lastEmailDeteails = await client.email.incoming[":id"].$get({
+//     param: {
+//       id: lastEmail.id.toString(),
+//     },
+//   });
+
+//   const deatilsResponse = await lastEmailDeteails.json();
+
+//   console.log(deatilsResponse);>>
+
+  // const incomingEmailDetails = await client.email.incoming[":id"].$get({
+  //   param: {
+  //     id: "2",
+  //   },
+  // });
+  // console.log(await incomingEmailDetails.json());
+
+
+  // const attachment = await client.email.attachment[":attachmentId"].download.$get({
+  //   param: {
+  //     attachmentId: "2",
+  //   },
+  // });
+  // console.log(attachment);
+
+
+  const verifyEmailResponse = await client.email["verify-email"].$post({
+    json: {
+      email: "gabicardetti@gmail.com",
     },
   });
-  console.log(await incomingEmailDetails.json());
+  console.log(verifyEmailResponse);
 
-
-  const attachment = await client.email.attachment[":attachmentId"].download.$get({
-    param: {
-      attachmentId: "2",
-    },
-  });
-  console.log(attachment);
+  const response = await verifyEmailResponse.json();
+  console.log(response);
 }
 
 main().catch(console.error);
